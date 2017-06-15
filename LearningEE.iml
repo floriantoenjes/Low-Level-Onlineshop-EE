@@ -21,5 +21,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="Payara 4.1.2.172 - RESTful Web Service" level="application_server_libraries" />
     <orderEntry type="library" scope="PROVIDED" name="Payara 4.1.2.172" level="application_server_libraries" />
+    <orderEntry type="library" name="ojdbc6" level="project" />
   </component>
 </module>
