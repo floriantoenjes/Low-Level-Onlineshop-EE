@@ -1,5 +1,6 @@
 package com.floriantoenjes.learning;
 
+import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,6 +15,8 @@ import java.sql.Connection;
 @WebServlet(name = "TestServlet", urlPatterns = "/test")
 public class TestServlet extends HttpServlet {
 
+//    @Resource(name = "jdbc/__default")
+    @Resource
     private DataSource ds;
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -28,7 +31,7 @@ public class TestServlet extends HttpServlet {
         writer.println("<html><body>");
 
         try {
-            ds = (DataSource) InitialContext.doLookup("jdbc/__default");
+//            ds = (DataSource) InitialContext.doLookup("jdbc/__default");
             final Connection con = ds.getConnection();
             if (con.isValid(10)) {
                 writer.println("<br/>Connected!");
