@@ -9,10 +9,12 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import javax.sql.DataSource;
+import javax.xml.transform.Result;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -48,15 +50,19 @@ public class SigninServlet extends HttpServlet {
 
     public Customer find(String _email, String _password) throws Exception {
         Connection con = dataSource.getConnection();
-        Statement statement = con.createStatement();
-        ResultSet resultSet = statement.executeQuery(String.format("SELECT id, email, password FROM onlineshop.customer " +
-                "WHERE email = '%s' AND password = '%s'", _email, _password));
+//        Statement statement = con.createStatement();
+//        ResultSet resultSet = statement.executeQuery(String.format("SELECT id, email, password FROM onlineshop.customer " +
+//                "WHERE email = '%s' AND password = '%s'", _email, _password));
+        PreparedStatement preparedStatement = con.prepareStatement("SELECT id, email, password FROM onlineshop.customer WHERE email = ? AND password = ?");
+        preparedStatement.setString(1, _email);
+        preparedStatement.setString(2, _password);
 
+        ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
 
             Customer customer = new Customer();
 
-            Long id = Long.valueOf(resultSet.getLong("id"));
+            Long id = resultSet.getLong("id");
             customer.setId(id);
 
             String email = resultSet.getString("email");
