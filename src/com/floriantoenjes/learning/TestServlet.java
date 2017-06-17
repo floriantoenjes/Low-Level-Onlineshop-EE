@@ -19,10 +19,6 @@ public class TestServlet extends HttpServlet {
     @Resource
     private DataSource ds;
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-    }
-
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         final PrintWriter writer = response.getWriter();
         response.setContentType("text/html;charset=UTF-8");
