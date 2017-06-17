@@ -15,9 +15,9 @@ public class LoggingFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         ServletContext servletContext = servletRequest.getServletContext();
         servletContext.log("LoggingFilter");
-//        filterChain.doFilter(servletRequest, servletResponse);
-        RequestDispatcher requestDispatcher = servletRequest.getRequestDispatcher("index.html");
-        requestDispatcher.forward(servletRequest, servletResponse);
+        filterChain.doFilter(servletRequest, servletResponse);
+//        RequestDispatcher requestDispatcher = servletRequest.getRequestDispatcher("index.html");
+//        requestDispatcher.forward(servletRequest, servletResponse);
     }
 
     @Override

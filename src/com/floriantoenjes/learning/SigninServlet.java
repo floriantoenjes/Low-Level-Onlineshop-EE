@@ -2,67 +2,72 @@ package com.floriantoenjes.learning;
 
 import com.floriantoenjes.learning.model.Customer;
 
+import javax.annotation.Resource;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Properties;
 
 @WebServlet(name = "SigninServlet", urlPatterns = "/signin")
 public class SigninServlet extends HttpServlet {
+
+    @Resource
+    private DataSource dataSource;
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        String cookie_email = null;
-        String cookie_password = null;
+        String _email = request.getParameter("email");
+        String _password = request.getParameter("password");
 
-        response.setContentType("text/html;charset=UTF-8");
-
-        final String email = request.getParameter("email");
-        final String password = request.getParameter("password");
-
-        final HttpSession session = request.getSession();
-        final Customer customer = (Customer) session.getAttribute("customer");
-
-        final PrintWriter out = response.getWriter();
-        out.println("<!DOCTYPE html>");
-        out.println("<html>");
-        out.println("<head>");
-        out.println("</head>");
-        out.println("<body>");
-
-//        if (email.equals(customer.getEmail()) && password.equals(customer.getPassword())) {
-//            out.println("Benutzer ist valide!");
-//        } else {
-//            out.println("Benutzer ist nicht valide!");
-//        }
-
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals("email")) {
-                cookie_email = cookie.getValue();
-            } else if (cookie.getName().equals("password")) {
-                cookie_password = cookie.getValue();
-            }
+        Customer customer = null;
+        try {
+            customer = find(_email, _password);
+        } catch (Exception e) {
+            throw new ServletException(e.getMessage());
         }
 
-        if (email.equals(cookie_email) && password.equals(cookie_password) ) {
-            out.println("Benutzer ist valide!");
-        } else {
-            out.println("Benutzer ist nicht valide!");
+        if (customer != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute("customer", customer);
         }
 
-        ServletContext application = getServletContext();
-        String jdbc_properties = application.getInitParameter("driver");
-        final InputStream in = application.getResourceAsStream(jdbc_properties);
-        final Properties p = new Properties();
-        p.load(in);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+        dispatcher.forward(request, response);
+    }
 
-        log(p.getProperty("driver"));
+    public Customer find(String _email, String _password) throws Exception {
+        Connection con = dataSource.getConnection();
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(String.format("SELECT id, email, password FROM onlineshop.customer " +
+                "WHERE email = '%s' AND password = '%s'", _email, _password));
 
-        out.println("</body>");
-        out.println("</html>");
+        if (resultSet.next()) {
+
+            Customer customer = new Customer();
+
+            Long id = Long.valueOf(resultSet.getLong("id"));
+            customer.setId(id);
+
+            String email = resultSet.getString("email");
+            customer.setEmail(email);
+
+            String password = resultSet.getString("password");
+            customer.setPassword(password);
+
+            return customer;
+        }
+        con.close();
+        return null;
     }
 }
