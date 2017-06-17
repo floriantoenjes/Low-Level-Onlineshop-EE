@@ -1,5 +1,6 @@
 package com.floriantoenjes.learning.model;
 
+import java.util.Arrays;
 import java.util.Date;
 
 public class Item {
@@ -65,5 +66,18 @@ public class Item {
 
     public void setSeller_id(Long seller_id) {
         this.seller_id = seller_id;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", foto=" + Arrays.toString(foto) +
+                ", price=" + price +
+                ", title='" + title + '\'' +
+                ", traded=" + traded +
+                ", seller_id=" + seller_id +
+                '}';
     }
 }
