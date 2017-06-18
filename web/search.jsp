@@ -35,5 +35,20 @@
 	</section>
 </article>
 
+<c:forEach var="item" items="${items}">
+    <article>
+        <section>
+            <form action="buy" method="post">
+                <fieldset>
+                    <legend>ID: ${item.id}</legend>
+                    <h2>${item.title}</h2>
+                    <p>${item.description}</p>
+                    <p><img src="foto?id=${item.id}"/></p>
+                    <p>Preis: ${item.price} Euro</p>
+                </fieldset>
+            </form>
+        </section>
+    </article>
+</c:forEach>
 
 <%@ include file="footer.jspf" %>

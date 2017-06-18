@@ -11,6 +11,7 @@ public class Item {
     private String title;
     private Date traded;
     private Long seller_id;
+    private Long buyer_id;
 
     public Long getId() {
         return id;
@@ -66,6 +67,14 @@ public class Item {
 
     public void setSeller_id(Long seller_id) {
         this.seller_id = seller_id;
+    }
+
+    public Long getBuyer_id() {
+        return buyer_id;
+    }
+
+    public void setBuyer_id(Long buyer_id) {
+        this.buyer_id = buyer_id;
     }
 
     @Override
