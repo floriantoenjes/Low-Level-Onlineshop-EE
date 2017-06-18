@@ -2,13 +2,20 @@ package com.floriantoenjes.learning;
 
 import com.floriantoenjes.learning.model.Customer;
 import com.floriantoenjes.learning.model.Item;
+import com.sun.org.apache.regexp.internal.RE;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import javax.sql.DataSource;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +29,8 @@ import java.sql.ResultSet;
         fileSizeThreshold = 1024 * 1024,
         maxRequestSize = 1024 * 1024 * 5 * 5)
 public class SellServlet extends HttpServlet {
+
+    public final static int MAX_IMAGE_LENGTH = 400;
 
     @Resource
     private DataSource dataSource;
@@ -73,7 +82,7 @@ public class SellServlet extends HttpServlet {
         preparedStatement.setString(1, item.getTitle());
         preparedStatement.setString(2, item.getDescription());
         preparedStatement.setDouble(3, item.getPrice());
-        preparedStatement.setBytes(4, item.getFoto());
+        preparedStatement.setBytes(4, scale(item.getFoto()));
         preparedStatement.setLong(5, item.getSeller_id());
         preparedStatement.executeUpdate();
 
@@ -84,6 +93,34 @@ public class SellServlet extends HttpServlet {
             item.setId(id);
         }
         con.close();
+    }
+
+    public byte[] scale(byte[] foto) throws IOException {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(foto);
+        BufferedImage originalBufferedImage = ImageIO.read(byteArrayInputStream);
+
+        double originalWidth = (double) originalBufferedImage.getWidth();
+        double originalHeight = (double) originalBufferedImage.getHeight();
+
+        double relevantLength = originalWidth > originalHeight ? originalWidth : originalHeight;
+
+        double scaleFactor = MAX_IMAGE_LENGTH / relevantLength;
+
+        int width = (int) Math.round(originalWidth * scaleFactor);
+        int height = (int) Math.round(originalHeight * scaleFactor);
+
+        BufferedImage resizedBufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D g2d = resizedBufferedImage.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+
+        AffineTransform affineTransform = AffineTransform.getScaleInstance(scaleFactor, scaleFactor);
+        g2d.drawRenderedImage(originalBufferedImage, affineTransform);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(resizedBufferedImage, "PNG", baos);
+
+        return baos.toByteArray();
     }
 
 }
